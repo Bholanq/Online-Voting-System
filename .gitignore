@@ -1,0 +1,29 @@
+# Node.js
+node_modules/
+.env
+.env.local
+npm-debug.log*
+
+# Logs
+logs
+*.log
+*.out
+*.pid
+*.gz
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Vite & React build
+dist/
+.vite/
+.vscode/
+
+# React coverage
+coverage/
+build/
+
+# Optional OS-specific ignores
+.idea/
+*.swp
