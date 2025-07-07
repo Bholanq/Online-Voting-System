@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { registerUser } from '../services/api';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import '../index.css';
 
 function Register() {
@@ -10,6 +11,7 @@ function Register() {
   });
 
   const [message, setMessage] = useState('');
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,8 +34,13 @@ function Register() {
     }
   };
 
-  return (
+ return (
     <div className="form-container">
+      {/* Add the "top-left-button" class here */}
+      <button onClick={() => navigate('/')} className="top-left-button">
+        Go Back
+      </button>
+
       <form onSubmit={handleSubmit}>
         <h2>Register</h2>
 

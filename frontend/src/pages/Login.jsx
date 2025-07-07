@@ -24,13 +24,15 @@ function Login() {
     e.preventDefault();
     try {
       const res = await loginUser(formData);
-      setToken(res.token);
+      const { token, user } = res.data; // FIXED
+
+      setToken(token);
       setMessage("Login successful");
 
-      localStorage.setItem("token", res.token);
-      localStorage.setItem("user", JSON.stringify(res.user));
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-      if (res.user.role === "admin") {
+      if (user.role === "admin") {
         navigate("/admin");
       } else {
         navigate("/voter");
@@ -43,6 +45,11 @@ function Login() {
 
   return (
     <div className="form-container">
+      {/* Add the "top-left-button" class here */}
+      <button onClick={() => navigate('/')} className="top-left-button">
+        Go Back
+      </button>
+
       <form onSubmit={handleSubmit}>
         <h2>Login</h2>
 

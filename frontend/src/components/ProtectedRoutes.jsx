@@ -1,18 +1,25 @@
-import { Navigate } from "react-router-dom";
+// src/components/ProtectedRoutes.jsx
 
-const ProtectedRoute = ({ children, role }) => {
-  const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user"));
+import { Navigate } from 'react-router-dom';
+import { getToken } from '../utils/auth';
+import { jwtDecode } from 'jwt-decode'; 
 
-  if (!token || !user) {
+function ProtectedRoute({ children, role }) {
+  const token = getToken();
+
+  if (!token) {
     return <Navigate to="/login" />;
   }
 
-  if (role && user.role !== role) {
+  try {
+    const decoded = jwtDecode(token); 
+    if (decoded.role !== role) {
+      return <Navigate to="/login" />;
+    }
+    return children;
+  } catch (err) {
     return <Navigate to="/login" />;
   }
-
-  return children;
-};
+}
 
 export default ProtectedRoute;

@@ -1,74 +1,77 @@
 import { useEffect, useState } from 'react';
 import { getToken } from '../utils/auth';
 import axios from 'axios';
+import '../styles/basic.css';
 
 function Vote() {
-  // state to store candidates and selected vote
-  const [candidates, setCandidates] = useState([]);
-  const [selected, setSelected] = useState('');
+  const [polls, setPolls] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState({});
 
-  // fetch candidate list when page loads
   useEffect(() => {
-    const fetchCandidates = async () => {
+    const fetchPolls = async () => {
       try {
-        // temporary dummy data
-        const data = ['Alice', 'Bob', 'Charlie'];
-        setCandidates(data);
+        const token = getToken();
+        const res = await axios.get('http://localhost:5001/api/polls', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setPolls(res.data);
       } catch (err) {
-        alert('failed to load candidates');
+        alert('Failed to load polls');
       }
     };
 
-    fetchCandidates();
+    fetchPolls();
   }, []);
 
-  // handle vote submit
-  const handleVote = async (e) => {
-    e.preventDefault();
-
-    if (!selected) {
-      alert('please select a candidate');
-      return;
-    }
-
+  const handleVote = async (pollId, optionIndex) => {
     try {
-      const token = getToken(); // get jwt from localstorage
-
+      const token = getToken();
       await axios.post(
-        'http://localhost:5001/api/vote',
-        { candidate: selected },
+        'http://localhost:5001/api/polls/vote',
+        { pollId, optionIndex },
         {
-          headers: {
-            Authorization: `Bearer ${token}`, // send token to backend
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-
-      alert('vote submitted successfully');
+      alert('Vote submitted!');
     } catch (err) {
-      alert(err.response?.data?.message || 'vote submission failed');
+      alert(err.response?.data?.message || 'Vote failed');
     }
   };
 
   return (
-    <form onSubmit={handleVote}>
-      <h2>vote for your candidate</h2>
-
-      {candidates.map((name, index) => (
-        <div key={index}>
-          <input
-            type="radio"
-            id={name}
-            name="candidate"
-            value={name}
-            onChange={(e) => setSelected(e.target.value)}
-          />
-          <label htmlFor={name}>{name}</label>
+    <div className="dashboard-container">
+      <h2>Available Polls</h2>
+      {polls.map((poll) => (
+        <div key={poll._id} className="poll-card">
+          <p><strong>{poll.question}</strong></p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleVote(poll._id, selectedOptions[poll._id]);
+            }}
+          >
+            {poll.options.map((opt, index) => (
+              <div key={index}>
+                <input
+                  type="radio"
+                  name={`poll-${poll._id}`}
+                  value={index}
+                  onChange={() =>
+                    setSelectedOptions((prev) => ({
+                      ...prev,
+                      [poll._id]: index,
+                    }))
+                  }
+                />
+                <label>{opt.text}</label>
+              </div>
+            ))}
+            <button type="submit" className="vote-btn">Vote</button>
+          </form>
         </div>
       ))}
-
-      <button type="submit">submit vote</button>
-    </form>
+    </div>
   );
 }
 
